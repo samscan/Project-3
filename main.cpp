@@ -124,9 +124,9 @@ void uartTask()
                 uartUsb.write( "Temperature is below the maximum level\r\n", 40);
             }
             break;
-        //default:
-          //  availableCommands();
-            //break;
+        default:
+            availableCommands();
+            break;
 
         }
     }
