@@ -3,6 +3,14 @@
 
 #include "ignition_subsystem.h"
 
+typedef enum {
+    BUTTON_UP,
+    BUTTON_DOWN,
+    BUTTON_FALLING,
+    BUTTON_RISING
+} buttonState_t;
+
+
 DigitalIn driverSeat(D2);
 DigitalIn ignition(D6);
 
@@ -13,25 +21,19 @@ buttonState_t ignitionButtonState;
 int accumulatedDebounceButtonTime = 0;
 int ignitionPressedDebounceTime = 0;
 
-void ignitionInit();
-void ignitionUpdate();
 void checkStartEngine();
 void checkStopEngine();
 void debounceButtonInit();
 bool debounceButtonUpdate();
 
-void inputsInit()
+void ignitionInit()
 {
     driverSeat.mode(PullDown);
     ignition.mode(PullDown);
-}
-
-void outputsInit()
-{
     engine = OFF;
 }
 
-void engineUpdate() {
+void eignitionUpdate() {
     if(!engine) {
         checkStartEngine();
     }
