@@ -11,8 +11,8 @@ typedef enum {
 } buttonState_t;
 
 
-DigitalIn driverSeat(D2);
-DigitalIn ignition(D6);
+DigitalIn driverSeat(D11);
+DigitalIn ignition(D12);
 
 DigitalOut engine(LED2);
 
