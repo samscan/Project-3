@@ -1,10 +1,45 @@
+#include "mbed.h"
+#include "arm_book_lib.h"
 
+#include "ignition_button.h"
 
+DigitalIn ignition(D12);
 
+typedef enum {
+    BUTTON_UP,
+    BUTTON_DOWN,
+    BUTTON_FALLING,
+    BUTTON_RISING
+} buttonState_t;
 
+buttonState_t ignitionButtonState;
+int accumulatedDebounceButtonTime = 0;
 
+void debounceButtonInit();
+bool debounceButtonUpdate();
 
+void ignitionInit()
+{
+    ignition.mode(PullDown);
+}
 
+void checkStartEngine(){
+    bool ignitionButtonReleasedEvent = debounceButtonUpdate();
+    if(driverSeat && ignitionButtonReleasedEvent && ignitionPressedDebounceTime >= DEBOUNCE_BUTTON_TIME_MS){
+
+        engine = ON;
+        ignitionPressedDebounceTime = 0;
+    }
+    
+}
+
+void checkStopEngine(){
+    bool ignitionButtonReleasedEvent = debounceButtonUpdate();
+    if(ignitionButtonReleasedEvent && ignitionPressedDebounceTime >= DEBOUNCE_BUTTON_TIME_MS){
+        engine = OFF;
+        ignitionPressedDebounceTime = 0;
+    }
+}
 
 bool debounceButtonUpdate()
 {
