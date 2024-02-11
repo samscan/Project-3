@@ -7,8 +7,6 @@
 
 #define TIME_INCREMENT_MS                       10
 #define DEBOUNCE_BUTTON_TIME_MS                 40
-#define DAYLIGHT_LEVEL                          0.888
-#define DUSK_LEVEL                              0.76
 
 //=====[Declaration of public data types]======================================
 
