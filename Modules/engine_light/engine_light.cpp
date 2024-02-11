@@ -3,7 +3,6 @@
 
 #include "engine_light.h"
 
-DigitalOut engine(LED2);
 
 
 void engineInit()

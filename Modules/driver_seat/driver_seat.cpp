@@ -3,9 +3,14 @@
 
 #include "driver_seat.h"
 
-DigitalIn driverSeat(D11);
 
 void driverSeatInit()
 {
     driverSeat.mode(PullDown);
+}
+
+void driverSeatUpdate()
+{
+
+
 }
