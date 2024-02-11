@@ -1,9 +1,16 @@
+//=====[Libraries]=============================================================
+
 #include "mbed.h"
 #include "arm_book_lib.h"
 
-#include "ignition_button.h"
+//=====[Defines]===============================================================
 
-DigitalIn ignition(D12);
+#define TIME_INCREMENT_MS                       10
+#define DEBOUNCE_BUTTON_TIME_MS                 40
+#define DAYLIGHT_LEVEL                          0.888
+#define DUSK_LEVEL                              0.76
+
+//=====[Declaration of public data types]======================================
 
 typedef enum {
     BUTTON_UP,
@@ -12,15 +19,46 @@ typedef enum {
     BUTTON_RISING
 } buttonState_t;
 
-buttonState_t ignitionButtonState;
-int accumulatedDebounceButtonTime = 0;
+//=====[Declaration and initialization of public global objects]===============
 
+DigitalIn driverSeat(D2);
+DigitalIn ignition(D6);
+
+DigitalOut engine(LED2);
+
+UnbufferedSerial uartUsb(USBTX, USBRX, 115200);
+
+//=====[Declaration and initialization of public global variables]=============
+
+buttonState_t ignitionButtonState;
+
+int accumulatedDebounceButtonTime = 0;
+int ignitionPressedDebounceTime = 0;
+
+//=====[Declarations (prototypes) of public functions]=========================
+
+
+void checkStartEngine();
+void checkStopEngine();
 void debounceButtonInit();
 bool debounceButtonUpdate();
 
+
 void ignitionInit()
 {
+    driverSeat.mode(PullDown);
     ignition.mode(PullDown);
+    debounceButtonInit();
+}
+
+void ignitionUpdate() {
+    if(!engine) {
+        checkStartEngine();
+    }
+    else {
+        checkStopEngine();
+    }
+    ignitionPressedDebounceTime = ignitionPressedDebounceTime + TIME_INCREMENT_MS;
 }
 
 void checkStartEngine(){
