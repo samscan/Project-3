@@ -3,7 +3,7 @@
 
 #include "ignition_subsystem.h"
 #include "windshield_wiper_subsystem.h"
-#include "display.h"
+#include "display_subsystem.h"
 
 #define TIME_INCREMENT_MS                       10
 
