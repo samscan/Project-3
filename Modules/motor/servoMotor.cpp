@@ -4,7 +4,7 @@
 #include "arm_book_lib.h"
 
 #include "servoMotor.h"
-#include "windshield_wipers_subsystem.h"
+#include "windshield_wiper_subsystem.h"
 
 
 //=====[Declaration of private defines]========================================
