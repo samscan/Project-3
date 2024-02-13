@@ -3,10 +3,7 @@
 
 #include "windshield_wipers.h"
 
-
 #define TIME_INCREMENT_MS           10
-
-#define PERIOD                      0.02
 #define HI_MODE_MAX                 0.25
 #define LOW_MODE_MAX                0.50
 #define INT_MODE_MAX                0.75
@@ -29,7 +26,7 @@ windshieldMode_t modeSelectedUpdate() {
     else if (modeSelectValue < INT_MODE_MAX) {
         return INT;
     }
-    else if (modeSelectValue < OF_MODE_MAX) {
+    else {
         return OF; 
     }
 }
@@ -42,7 +39,7 @@ windshieldDelay_t delaySelectedUpdate() {
     else if (delaySelectValue < MEDIUM_MODE_MAX) {
         return MEDIUM;
     }
-    else if (delaySelectValue < LONG_MODE_MAX) {
+    else {
         return LONG;
     }
 }

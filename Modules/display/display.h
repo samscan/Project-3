@@ -1,5 +1,5 @@
-#ifndef _WINDSHIELD_WIPERS_H_
-#define _WINDSHIELD_WIPERS_H_
+#ifndef _DISPLAY_H_
+#define _DISPLAY_H_
 
 void displayInit();
 void displayUpdate();
