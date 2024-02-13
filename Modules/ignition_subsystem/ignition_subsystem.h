@@ -2,7 +2,7 @@
 #define _IGNITION_SUBSYSTEM_H_
 
 typedef enum{ 
-    OF, 
+    NOT_RUNNING, 
     RUNNING
 } engineStatus_t;
 

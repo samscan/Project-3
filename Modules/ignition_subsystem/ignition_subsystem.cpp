@@ -42,7 +42,7 @@ engineStatus_t engineStatusUpdate() {
         return RUNNING;
     }
     else {
-        return OF;
+        return NOT_RUNNING;
     }
 }
 
