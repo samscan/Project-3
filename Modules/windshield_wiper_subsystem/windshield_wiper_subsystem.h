@@ -1,5 +1,5 @@
-#ifndef _WINDSHIELD_WIPER_SELECTION_H_
-#define _WINDSHIELD_WIPER_SELECTION_H_
+#ifndef _WINDSHIELD_WIPER_SUBSYSTEM_H_
+#define _WINDSHIELD_WIPER_SUBSYSTEM_H_
 
 typedef enum {
 	HI,
@@ -14,6 +14,8 @@ typedef enum {
 	LONG
 } windshieldDelay_t;
 
+void windshieldWiperInit();
+void windshieldWiperUpdate();
 windshieldMode_t modeSelectedUpdate();
 windshieldDelay_t delaySelectedUpdate();
 

@@ -2,7 +2,7 @@
 #include "arm_book_lib.h"
 
 #include "display.h"
-#include "windshield_wiper_selection.h"
+#include "windshield_wiper_subsystem.h"
 
 #define TIME_INCREMENT_MS 10
 
@@ -212,7 +212,7 @@ void displayStringWrite( const char * str ) {
 void displayCodeWrite( bool type, uint8_t dataBus ) {
     if ( type == DISPLAY_RS_INSTRUCTION )
         displayPinWrite( DISPLAY_PIN_RS, DISPLAY_RS_INSTRUCTION);
-        else
+    else
         displayPinWrite( DISPLAY_PIN_RS, DISPLAY_RS_DATA);
     displayPinWrite( DISPLAY_PIN_RW, DISPLAY_RW_WRITE );
     displayDataBusWrite( dataBus );
