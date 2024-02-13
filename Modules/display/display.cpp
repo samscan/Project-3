@@ -1,19 +1,10 @@
 #include "mbed.h"
 #include "arm_book_lib.h"
 
-#include "windshield_wipers_subsystem.h"
+#include "display.h"
+#include "windshield_wipers.h"
 
-
-#define TIME_INCREMENT_MS           10
-
-#define PERIOD                      0.02
-#define HI_MODE_MAX                 0.25
-#define LOW_MODE_MAX                0.50
-#define INT_MODE_MAX                0.75
-#define OF_MODE_MAX                 1.00
-#define SHORT_MODE_MAX              0.33
-#define MEDIUM_MODE_MAX             0.67
-#define LONG_MODE_MAX               1.00
+#define TIME_INCREMENT_MS 10
 
 #define DISPLAY_REFRESH_TIME_MS 1000
 
@@ -66,20 +57,6 @@
 #define DISPLAY_PIN_D7 14 
 
 
-typedef enum {
-	HI,
-	LO,
-	INT,
-	OF
-} windshieldMode_t;
-
-typedef enum {
-	SHORT,
-	MEDIUM,
-	LONG
-} windshieldDelay_t;
-
-
 DigitalOut displayD0( D0 );
 DigitalOut displayD1( D1 );
 DigitalOut displayD2( D2 );
@@ -91,19 +68,7 @@ DigitalOut displayD7( D7 );
 DigitalOut displayRs( D8 );
 DigitalOut displayEn( D9 );
 
-AnalogIn modeSelectReading(A0);
-AnalogIn delaySelectReading(A1);
-
-
 int accumulatedDisplayTime = 0;
-windshieldMode_t modeSelected;
-windshieldDelay_t delaySelected; 
-
-
-void modeSelectedUpdate();
-void delaySelectedUpdate();
-void displayUpdate();
-void displayInit();
 
 void displayCharPositionWrite( uint8_t charPositionX, uint8_t charPositionY );
 void displayPinWrite( uint8_t pinName, int value );
@@ -111,63 +76,46 @@ void displayDataBusWrite( uint8_t dataByte );
 void displayCodeWrite( bool type, uint8_t dataBus );
 void displayStringWrite( const char * str );
 
-
-void modeSelectedUpdate() {
-    float modeSelectValue = modeSelectReading; 
-    if (modeSelectValue < HI_MODE_MAX) {
-        modeSelected = HI;
-    }
-    else if (modeSelectValue < LOW_MODE_MAX) {
-        modeSelected = LO;
-    }
-    else if (modeSelectValue < INT_MODE_MAX) {
-        modeSelected = INT;
-    }
-    else if (modeSelectValue < OF_MODE_MAX) {
-        modeSelected = OF; 
-    }
-}
-
-void delaySelectedUpdate() {
-    float delaySelectValue = delaySelectReading; 
-    if (delaySelectValue < SHORT_MODE_MAX) {
-        delaySelected = SHORT;
-    }
-    else if (delaySelectValue < MEDIUM_MODE_MAX) {
-        delaySelected = MEDIUM;
-    }
-    else if (delaySelectValue < LONG_MODE_MAX) {
-        delaySelected = LONG;
-    }
-}
-
 void displayUpdate() {
     if (accumulatedDisplayTime >= DISPLAY_REFRESH_TIME_MS) {
         accumulatedDisplayTime = 0;
+        windshieldMode_t modeSelected = modeSelectedUpdate();
         displayCharPositionWrite(6,0);
-        if (modeSelected == HI) {
+        switch (modeSelected) {
+        
+        case HI:
             displayStringWrite("HI ");
-        }
-        else if (modeSelected == LO) {
+            break;
+
+        case LO:
             displayStringWrite("LO ");
-        }
-        else if (modeSelected == INT) {
+            break; 
+
+        case INT:
             displayStringWrite("INT");
-        }
-        else if (modeSelected == OF) {
+            break; 
+
+        case OF: 
             displayStringWrite("OFF");
+            break; 
         }
 
         displayCharPositionWrite(7,1);
         if (modeSelected == INT) {
-            if (delaySelected == SHORT) {
+            windshieldDelay_t delaySelected = delaySelectedUpdate();
+            switch (delaySelected) {
+            
+            case SHORT: 
                 displayStringWrite("SHORT ");
-            }
-            else if (delaySelected == MEDIUM) {
+                break; 
+            
+            case MEDIUM:
                 displayStringWrite("MEDIUM");
-            }
-            else if (delaySelected == LONG) {
+                break;
+
+            case LONG: 
                 displayStringWrite("LONG  ");
+                break;
             }
         }
         else {
