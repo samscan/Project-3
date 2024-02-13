@@ -12,11 +12,11 @@
 #define MEDIUM_MODE_MAX             0.67
 #define LONG_MODE_MAX               1.00
 
-AnalogIn modeSelectReading(A0);
-AnalogIn delaySelectReading(A1);
+AnalogIn modeSelect(A0);
+AnalogIn delaySelect(A1);
 
 windshieldMode_t modeSelectedUpdate() {
-    float modeSelectValue = modeSelectReading; 
+    float modeSelectValue = getPotentiometerValue(modeSelect); 
     if (modeSelectValue < HI_MODE_MAX) {
         return HI;
     }
@@ -32,7 +32,7 @@ windshieldMode_t modeSelectedUpdate() {
 }
 
 windshieldDelay_t delaySelectedUpdate() {
-    float delaySelectValue = delaySelectReading; 
+    float delaySelectValue = getPotentiometerValue(delaySelect); 
     if (delaySelectValue < SHORT_MODE_MAX) {
         return SHORT;
     }
