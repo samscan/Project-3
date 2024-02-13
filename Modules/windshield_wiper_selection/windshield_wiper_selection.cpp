@@ -1,7 +1,7 @@
 #include "mbed.h"
 #include "arm_book_lib.h"
 
-#include "windshield_wipers.h"
+#include "windshield_wiper_selection.h"
 
 #define TIME_INCREMENT_MS           10
 #define HI_MODE_MAX                 0.25

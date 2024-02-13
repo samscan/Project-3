@@ -1,14 +1,10 @@
-//=====[Libraries]=============================================================
-
 #include "mbed.h"
 #include "arm_book_lib.h"
 
-//=====[Defines]===============================================================
+#include "ignition_subsystem.h"
 
 #define TIME_INCREMENT_MS                       10
 #define DEBOUNCE_BUTTON_TIME_MS                 40
-
-//=====[Declaration of public data types]======================================
 
 typedef enum {
     BUTTON_UP,
@@ -17,8 +13,6 @@ typedef enum {
     BUTTON_RISING
 } buttonState_t;
 
-//=====[Declaration and initialization of public global objects]===============
-
 DigitalIn driverSeat(D11);
 DigitalIn ignition(D12);
 
@@ -26,27 +20,30 @@ DigitalOut engine(LED2);
 
 UnbufferedSerial uartUsb(USBTX, USBRX, 115200);
 
-//=====[Declaration and initialization of public global variables]=============
-
 buttonState_t ignitionButtonState;
 
 int accumulatedDebounceButtonTime = 0;
 int ignitionPressedDebounceTime = 0;
-
-//=====[Declarations (prototypes) of public functions]=========================
-
 
 void checkStartEngine();
 void checkStopEngine();
 void debounceButtonInit();
 bool debounceButtonUpdate();
 
-
 void ignitionInit()
 {
     driverSeat.mode(PullDown);
     ignition.mode(PullDown);
     debounceButtonInit();
+}
+
+engineStatus_t engineStatusUpdate() {
+    if (engine == ON) {
+        return RUNNING;
+    }
+    else {
+        return OF;
+    }
 }
 
 void ignitionUpdate() {

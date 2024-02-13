@@ -1,5 +1,5 @@
-#ifndef _WINDSHIELD_WIPERS_H_
-#define _WINDSHIELD_WIPERS_H_
+#ifndef _WINDSHIELD_WIPER_SELECTION_H_
+#define _WINDSHIELD_WIPER_SELECTION_H_
 
 typedef enum {
 	HI,
