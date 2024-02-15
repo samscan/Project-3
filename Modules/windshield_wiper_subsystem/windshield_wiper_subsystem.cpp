@@ -50,3 +50,57 @@ windshieldDelay_t delaySelectedUpdate() {
         return LONG;
     }
 }
+
+void windshieldWiperInit() {
+    // Initialize the servo motor for the windshield wiper
+    servoMotorInit();
+    // Set the initial mode of the windshield wiper to OFF
+    servoMotorWrite(OF_MODE_MAX);
+}
+
+void windshieldWiperUpdate() {
+    static Timer timer;
+    static int elapsedTime = 0;
+    
+    // Start the timer if it's not already running
+    if (!timer.running) {
+        timer.start();
+    }
+    
+    // Update only every TIME_INCREMENT_MS milliseconds
+    if (timer.read_ms() - elapsedTime >= TIME_INCREMENT_MS) {
+        elapsedTime = timer.read_ms();
+        
+        windshieldMode_t currentMode = modeSelectedUpdate();
+        windshieldDelay_t currentDelay = delaySelectedUpdate();
+        
+        // Adjust the servo motor based on the current mode and delay
+        switch (currentMode) {
+            case HI:
+                servoMotorWrite(HI_MODE_MAX);
+                break;
+            case LO:
+                servoMotorWrite(LOW_MODE_MAX);
+                break;
+            case INT:
+                // For intermittent mode, we use the delay to adjust the pause between wipes
+                static int delayTime = 0;
+                if (delayTime <= 0) {
+                    servoMotorWrite(INT_MODE_MAX);
+                    if (currentDelay == SHORT) {
+                        delayTime = 1000; // 1 second for short
+                    } else if (currentDelay == MEDIUM) {
+                        delayTime = 2000; // 2 seconds for medium
+                    } else {
+                        delayTime = 3000; // 3 seconds for long
+                    }
+                } else {
+                    delayTime -= TIME_INCREMENT_MS;
+                }
+                break;
+            case OF:
+                servoMotorWrite(OF_MODE_MAX);
+                break;
+        }
+    }
+}
