@@ -51,7 +51,7 @@ void resetMotor(){
     servo.write(DUTY_MIN);
 }
 
-void motorControl(motorDelay motorSpeed, IntDelay IntTime)
+void motorControl(motorDelay motorSpeed, int IntTime)
 {
 
     if(motorSpeed != INT_D && motorSpeed != OF_D){
