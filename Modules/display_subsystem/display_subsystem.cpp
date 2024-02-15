@@ -3,6 +3,7 @@
 
 #include "display_subsystem.h"
 #include "windshield_wiper_subsystem.h"
+#include "ignition_subsystem.h"
 
 #define TIME_INCREMENT_MS 10
 
@@ -77,53 +78,66 @@ void displayCodeWrite( bool type, uint8_t dataBus );
 void displayStringWrite( const char * str );
 
 void displayUpdate() {
-    if (accumulatedDisplayTime >= DISPLAY_REFRESH_TIME_MS) {
-        accumulatedDisplayTime = 0;
-        windshieldMode_t modeSelected = modeSelectedUpdate();
-        displayCharPositionWrite(6,0);
-        switch (modeSelected) {
-        
-        case HI:
-            displayStringWrite("HI ");
-            break;
-
-        case LO:
-            displayStringWrite("LO ");
-            break; 
-
-        case INT:
-            displayStringWrite("INT");
-            break; 
-
-        case OF: 
-            displayStringWrite("OFF");
-            break; 
-        }
-
-        displayCharPositionWrite(7,1);
-        if (modeSelected == INT) {
-            windshieldDelay_t delaySelected = delaySelectedUpdate();
-            switch (delaySelected) {
+    engineStatus_t engineStatus = engineStatusUpdate();
+    if (engineStatus == RUNNING) {
+        if (accumulatedDisplayTime >= DISPLAY_REFRESH_TIME_MS) {
+            accumulatedDisplayTime = 0;
+            windshieldMode_t modeSelected = modeSelectedUpdate();
+            displayCharPositionWrite (0,0);
+            displayStringWrite("Mode: ");
+            displayCharPositionWrite (0,1);
+            displayStringWrite("Delay: ");
+            displayCharPositionWrite(6,0);
+            switch (modeSelected) {
             
-            case SHORT: 
-                displayStringWrite("SHORT ");
+            case HI:
+                displayStringWrite("HI ");
+                break;
+
+            case LO:
+                displayStringWrite("LO ");
                 break; 
-            
-            case MEDIUM:
-                displayStringWrite("MEDIUM");
-                break;
 
-            case LONG: 
-                displayStringWrite("LONG  ");
-                break;
+            case INT:
+                displayStringWrite("INT");
+                break; 
+
+            case OF: 
+                displayStringWrite("OFF");
+                break; 
+            }
+
+            displayCharPositionWrite(7,1);
+            if (modeSelected == INT) {
+                windshieldDelay_t delaySelected = delaySelectedUpdate();
+                switch (delaySelected) {
+                
+                case SHORT: 
+                    displayStringWrite("SHORT ");
+                    break; 
+                
+                case MEDIUM:
+                    displayStringWrite("MEDIUM");
+                    break;
+
+                case LONG: 
+                    displayStringWrite("LONG  ");
+                    break;
+                }
+            }
+            else {
+                displayStringWrite("none  ");
             }
         }
         else {
-            displayStringWrite("none  ");
+            accumulatedDisplayTime = accumulatedDisplayTime + TIME_INCREMENT_MS;
         }
     }
     else {
-        accumulatedDisplayTime = accumulatedDisplayTime + TIME_INCREMENT_MS;
+        displayCharPositionWrite (0,0);
+        displayStringWrite("         ");
+        displayCharPositionWrite (0,1);
+        displayStringWrite("             ");
     }
 }
 
@@ -175,12 +189,6 @@ void displayInit() {
                       DISPLAY_IR_DISPLAY_CONTROL_CURSOR_OFF |    
                       DISPLAY_IR_DISPLAY_CONTROL_BLINK_OFF );    
     delay( 1 );  
-
-    displayCharPositionWrite (0,0);
-    displayStringWrite("Mode: ");
-
-    displayCharPositionWrite (0,1);
-    displayStringWrite("Delay: ");
 }
 
 void displayCharPositionWrite( uint8_t charPositionX, uint8_t charPositionY ) {    

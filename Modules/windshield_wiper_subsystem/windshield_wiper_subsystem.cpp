@@ -3,6 +3,7 @@
 
 #include "windshield_wiper_subsystem.h"
 #include "servoMotor.h"
+#include "ignition_subsystem.h"
 
 #define TIME_INCREMENT_MS           10
 #define HI_MODE_MAX                 0.25
@@ -12,9 +13,15 @@
 #define SHORT_MODE_MAX              0.33
 #define MEDIUM_MODE_MAX             0.67
 #define LONG_MODE_MAX               1.00
+#define SHORT_DELAY                 3000
+#define MEDIUM_DELAY                6000
+#define LONG_DELAY                  8000
 
 AnalogIn modeSelect(A0);
 AnalogIn delaySelect(A1);
+
+int accumulatedTime = 0;
+int delayTime = 0; 
 
 float getPotentiometerValue(AnalogIn potentiometer);
 
@@ -59,50 +66,38 @@ void windshieldWiperInit() {
 }
 
 void windshieldWiperUpdate() {
-    static Timer timer;
-    static int elapsedTime = 0;
-    
-    // Start the timer if it's not already running
-    if (!timer.running) {
-        timer.start();
-    }
-    
-    // Update only every TIME_INCREMENT_MS milliseconds
-    if (timer.read_ms() - elapsedTime >= TIME_INCREMENT_MS) {
-        elapsedTime = timer.read_ms();
-        
+    engineStatus_t engineStatus = engineStatusUpdate();
+    if (engineStatus == RUNNING) {
         windshieldMode_t currentMode = modeSelectedUpdate();
         windshieldDelay_t currentDelay = delaySelectedUpdate();
         
         // Adjust the servo motor based on the current mode and delay
         switch (currentMode) {
             case HI:
-                motorControl(HI_D, 0);
+                motorHiMode();
                 //servoMotorWrite(HI_MODE_MAX);
                 break;
             case LO:
-                motorControl(LO_D, 0);
+                motorLoMode();
                 //servoMotorWrite(LOW_MODE_MAX);
                 break;
             case INT:
                 // For intermittent mode, we use the delay to adjust the pause between wipes
-                static int delayTime = 0;
-                if (delayTime <= 0) {
-                    if (currentDelay == SHORT) {
-                        delayTime = 3000; // 1 second for short
-                    } else if (currentDelay == MEDIUM) {
-                        delayTime = 6000; // 2 seconds for medium
-                    } else {
-                        delayTime = 8000; // 3 seconds for long
-                    }
-                    motorControl(INT_D, delayTime);
-                } else {
-                    delayTime -= TIME_INCREMENT_MS;
+                if (currentDelay == SHORT) {
+                    delayTime = SHORT_DELAY; 
                 }
+                else if (currentDelay == MEDIUM) {
+                    delayTime = MEDIUM_DELAY;
+                }
+                else if (currentDelay == LONG) {
+                    delayTime = LONG_DELAY;
+                }
+                motorIntMode(delayTime);
                 break;
             case OF:
-                motorControl(OF_D, 0);
+                motorOfMode();
                 break;
         }
+    accumulatedTime = accumulatedTime + TIME_INCREMENT_MS;
     }
 }

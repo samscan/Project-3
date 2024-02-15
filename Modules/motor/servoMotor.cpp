@@ -6,35 +6,19 @@
 #include "servoMotor.h"
 #include "windshield_wiper_subsystem.h"
 
-
-//=====[Declaration of private defines]========================================
-
-#define DUTY_MIN 0.02
-#define DUTY_MAX 0.117
+#define TIME_INCREMENT_MS 10
+#define DUTY_MIN 0.020
+#define DUTY_MAX 0.109
 #define PERIOD 0.02
-#define LESS_THAN_A_SECOND 750 
-#define ONE_AND_HALF_SECONDS 1500
-#define THREE_SECONDS 3000
-#define SIX_SECONDS 6000
-#define EIGHT_SECONDS 8000
-
-//=====[Declaration of private data types]=====================================
-
-//=====[Declaration and initialization of public global objects]===============
 
 PwmOut servo(PF_9);
 
+int accumulatedSpeedDelay = 0;
+int accumulatedTimeDelay = 0;
 
-//=====[Declaration of external public global variables]=======================
-
-//=====[Declaration and initialization of public global variables]=============
-
-
-//=====[Declaration and initialization of private global variables]============
-
-//=====[Declarations (prototypes) of private functions]========================
-
-//=====[Implementations of public functions]===================================
+float getHiModeSpeed();
+float getLoModeSpeed();
+void motorControl(int speedDelay);
 
 void motorControlInit()
 {
@@ -42,63 +26,67 @@ void motorControlInit()
     servo.write(DUTY_MIN);
 }
 
-void moveSixtySevenDegrees(){
-    float duty = (DUTY_MAX * 67)/(180);
-    servo.write(duty);
+float getHiModeSpeed() {
+    float hiSpeed = 67.0 / (20.0 / 60.0 * 360.0) * 1000;
+    return hiSpeed;
 }
 
-void resetMotor(){
+float getLoModeSpeed() {
+    float loSpeed = 67.0 / (10.0 / 60.0 * 360.0) * 1000;
+    return loSpeed; 
+}
+
+void motorHiMode() {
+    float speedDelay = getHiModeSpeed();
+    motorControl(speedDelay);
+}
+
+void motorLoMode() {
+    float speedDelay = getLoModeSpeed();
+    motorControl(speedDelay);
+}
+
+void motorOfMode() {
     servo.write(DUTY_MIN);
 }
 
-void motorControl(motorDelay motorSpeed, int IntTime)
-{
-
-    if(motorSpeed != INT_D && motorSpeed != OF_D){
-        if (motorSpeed == HI_D) {
-        moveSixtySevenDegrees();
-
-        delay(LESS_THAN_A_SECOND);
-    
-        resetMotor();
-        
-        } else if(motorSpeed == LO_D){
-
-        moveSixtySevenDegrees();
-
-        delay(ONE_AND_HALF_SECONDS);
-    
-        resetMotor();
-
-        }
-    } else if (motorSpeed == INT_D){
-        if(IntTime == 3000){
-
-        moveSixtySevenDegrees();
-
-        delay(THREE_SECONDS);
-    
-        resetMotor();
-
-        } else if (IntTime == 6000){
-        
-        moveSixtySevenDegrees();
-
-        delay(SIX_SECONDS);
-    
-        resetMotor();
-        
-        } else if (IntTime == 8000){
-        
-        moveSixtySevenDegrees();
-
-        delay(EIGHT_SECONDS);
-    
-        resetMotor();
-        }
+void motorIntMode(int delayTime) {
+    float speedDelay = getLoModeSpeed();
+    if (accumulatedSpeedDelay == 0 && accumulatedTimeDelay == 0) {
+        servo.write(DUTY_MAX);
     }
 
+    if (accumulatedSpeedDelay >= speedDelay / 2 && accumulatedSpeedDelay < speedDelay) {
+        servo.write(DUTY_MIN); 
+    }
 
+    if (accumulatedSpeedDelay >= speedDelay && accumulatedTimeDelay < delayTime) {
+        servo.write(DUTY_MIN);
+    }
+    
+    if (accumulatedSpeedDelay >= speedDelay && accumulatedTimeDelay >= delayTime) {
+        accumulatedSpeedDelay = 0;
+        accumulatedTimeDelay = 0;
+    }
+    else {
+        accumulatedSpeedDelay = accumulatedSpeedDelay + TIME_INCREMENT_MS;
+        accumulatedTimeDelay = accumulatedTimeDelay + TIME_INCREMENT_MS;
+    }
 }
 
-//=====[Implementations of private functions]==================================
+void motorControl(int speedDelay) {
+    if (accumulatedSpeedDelay == 0) {
+        servo.write(DUTY_MAX);
+    }
+
+    if (accumulatedSpeedDelay >= speedDelay / 2 && accumulatedSpeedDelay < speedDelay) {
+        servo.write(DUTY_MIN); 
+    }
+
+    if (accumulatedSpeedDelay >= speedDelay) {
+        accumulatedSpeedDelay = 0;
+    }
+    else {
+        accumulatedSpeedDelay = accumulatedSpeedDelay + TIME_INCREMENT_MS;
+    }
+}
