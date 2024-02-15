@@ -20,19 +20,6 @@
 
 //=====[Declaration of private data types]=====================================
 
-typedef enum{
-    HI,
-    LO,
-    INT,
-    OF
-} motorDelay;
-
-typedef enum{
-    three,
-    six,
-    eight
-} IntDelay;
-
 //=====[Declaration and initialization of public global objects]===============
 
 PwmOut servo(PF_9);
@@ -67,15 +54,15 @@ void resetMotor(){
 void motorControl(motorDelay motorSpeed, IntDelay IntTime)
 {
 
-    if(motorSpeed != INT && motorSpeed != OF){
-        if (motorSpeed == HI) {
+    if(motorSpeed != INT_D && motorSpeed != OF_D){
+        if (motorSpeed == HI_D) {
         moveSixtySevenDegrees();
 
         delay(LESS_THAN_A_SECOND);
     
         resetMotor();
         
-        } else if(motorSpeed == LO){
+        } else if(motorSpeed == LO_D){
 
         moveSixtySevenDegrees();
 
@@ -84,8 +71,8 @@ void motorControl(motorDelay motorSpeed, IntDelay IntTime)
         resetMotor();
 
         }
-    } else if (motorSpeed == INT){
-        if(IntTime == three){
+    } else if (motorSpeed == INT_D){
+        if(IntTime == 3000){
 
         moveSixtySevenDegrees();
 
@@ -93,7 +80,7 @@ void motorControl(motorDelay motorSpeed, IntDelay IntTime)
     
         resetMotor();
 
-        } else if (IntTime == six){
+        } else if (IntTime == 6000){
         
         moveSixtySevenDegrees();
 
@@ -101,7 +88,7 @@ void motorControl(motorDelay motorSpeed, IntDelay IntTime)
     
         resetMotor();
         
-        } else if (IntTime == eight){
+        } else if (IntTime == 8000){
         
         moveSixtySevenDegrees();
 

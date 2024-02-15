@@ -53,9 +53,9 @@ windshieldDelay_t delaySelectedUpdate() {
 
 void windshieldWiperInit() {
     // Initialize the servo motor for the windshield wiper
-    servoMotorInit();
+    motorControlInit();
     // Set the initial mode of the windshield wiper to OFF
-    servoMotorWrite(OF_MODE_MAX);
+    //servoMotorWrite(OF_MODE_MAX);
 }
 
 void windshieldWiperUpdate() {
@@ -77,29 +77,31 @@ void windshieldWiperUpdate() {
         // Adjust the servo motor based on the current mode and delay
         switch (currentMode) {
             case HI:
-                servoMotorWrite(HI_MODE_MAX);
+                motorControl(HI_D, 0);
+                //servoMotorWrite(HI_MODE_MAX);
                 break;
             case LO:
-                servoMotorWrite(LOW_MODE_MAX);
+                motorControl(LO_D, 0);
+                //servoMotorWrite(LOW_MODE_MAX);
                 break;
             case INT:
                 // For intermittent mode, we use the delay to adjust the pause between wipes
                 static int delayTime = 0;
                 if (delayTime <= 0) {
-                    servoMotorWrite(INT_MODE_MAX);
                     if (currentDelay == SHORT) {
-                        delayTime = 1000; // 1 second for short
+                        delayTime = 3000; // 1 second for short
                     } else if (currentDelay == MEDIUM) {
-                        delayTime = 2000; // 2 seconds for medium
+                        delayTime = 6000; // 2 seconds for medium
                     } else {
-                        delayTime = 3000; // 3 seconds for long
+                        delayTime = 8000; // 3 seconds for long
                     }
+                    motorControl(INT_D, delayTime);
                 } else {
                     delayTime -= TIME_INCREMENT_MS;
                 }
                 break;
             case OF:
-                servoMotorWrite(OF_MODE_MAX);
+                motorControl(OF_D, 0);
                 break;
         }
     }

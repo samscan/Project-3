@@ -7,6 +7,19 @@
 
 //=====[Declaration of public data types]======================================
 
+typedef enum{
+    HI_D,
+    LO_D,
+    INT_D,
+    OF_D
+} motorDelay;
+
+typedef enum{
+    three,
+    six,
+    eight
+} IntDelay;
+
 typedef enum {
     DIRECTION_1,
     DIRECTION_2,
@@ -15,11 +28,8 @@ typedef enum {
 
 //=====[Declarations (prototypes) of public functions]=========================
 
-void motorInitialize();
-void motorInt();
-void motorHi();
-void motorLo();
-void motorHi();
+void motorControlInit();
+void motorControl(motorDelay motorSpeed, int IntTime);
 
 //=====[#include guards - end]=================================================
 
