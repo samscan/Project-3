@@ -10,15 +10,21 @@
 #define DUTY_MIN 0.020
 #define DUTY_MAX 0.109
 #define PERIOD 0.02
+#define INTERVAL_TIME 0.04
 
 PwmOut servo(PF_9);
 
-int accumulatedSpeedDelay = 0;
 int accumulatedTimeDelay = 0;
+int accumulatedIntervalTime = 0;
+float duty = DUTY_MIN;
+int accumulatedNumOfIntervals = 0;
 
-float getHiModeSpeed();
-float getLoModeSpeed();
-void motorControl(int speedDelay);
+void motorControlInit(); 
+float getSecToMoveSSD(int rpm);
+int getNumIntervals(float totalTime);
+float getDutyMovePerInterval(float numOfIntervals);
+void motorControl(float dutyInt, float numOfIntervals);
+
 
 void motorControlInit()
 {
@@ -26,24 +32,34 @@ void motorControlInit()
     servo.write(DUTY_MIN);
 }
 
-float getHiModeSpeed() {
-    float hiSpeed = 67.0 / (20.0 / 60.0 * 360.0) * 1000;
-    return hiSpeed;
+float getSecToMoveSSD(int rpm){
+    float mseconds = 67.0 / (rpm / 60.0 * 360.0) * 1000.0;
+    return mseconds; 
 }
 
-float getLoModeSpeed() {
-    float loSpeed = 67.0 / (10.0 / 60.0 * 360.0) * 1000;
-    return loSpeed; 
+int getNumIntervals(float totalTime) {
+    float numOfIntervals = totalTime / (INTERVAL_TIME * 1000.0);
+    return numOfIntervals; 
+} 
+
+float getDutyMovePerInterval(float numOfIntervals) {
+    float degrees = 67.0 / numOfIntervals;
+    float dutyInt = (DUTY_MAX - DUTY_MIN) / 180.0 * degrees; 
+    return dutyInt;
 }
 
 void motorHiMode() {
-    float speedDelay = getHiModeSpeed();
-    motorControl(speedDelay);
+    float oneMoveTime = getSecToMoveSSD(30);
+    int numOfIntervals = getNumIntervals(oneMoveTime);
+    float dutyInt = getDutyMovePerInterval(numOfIntervals);
+    motorControl(dutyInt, numOfIntervals);
 }
 
 void motorLoMode() {
-    float speedDelay = getLoModeSpeed();
-    motorControl(speedDelay);
+    float oneMoveTime = getSecToMoveSSD(20);
+    int numOfIntervals = getNumIntervals(oneMoveTime);
+    float dutyInt = getDutyMovePerInterval(numOfIntervals);
+    motorControl(dutyInt, numOfIntervals);
 }
 
 void motorOfMode() {
@@ -51,8 +67,40 @@ void motorOfMode() {
 }
 
 void motorIntMode(int delayTime) {
-    float speedDelay = getLoModeSpeed();
-    if (accumulatedSpeedDelay == 0 && accumulatedTimeDelay == 0) {
+    float oneMoveTime = getSecToMoveSSD(20);
+    int numOfIntervals = getNumIntervals(oneMoveTime);
+    float dutyInt = getDutyMovePerInterval(numOfIntervals);
+    if (accumulatedIntervalTime == 0 && accumulatedNumOfIntervals == 0) {
+        duty = DUTY_MIN;
+        servo.write(duty); 
+    }
+    else if (accumulatedIntervalTime >= INTERVAL_TIME && accumulatedNumOfIntervals < numOfIntervals) {
+        duty = duty + dutyInt;
+        servo.write(duty); 
+    }
+    else if (accumulatedIntervalTime >= INTERVAL_TIME && accumulatedNumOfIntervals >= numOfIntervals && accumulatedNumOfIntervals < 2 * numOfIntervals) {
+        duty = duty - dutyInt;
+        servo.write(duty);
+    }
+
+    if (accumulatedIntervalTime >= INTERVAL_TIME) {
+        accumulatedIntervalTime = 0;
+        accumulatedNumOfIntervals = accumulatedNumOfIntervals + 1;
+    }
+    else {
+        accumulatedIntervalTime = accumulatedIntervalTime + TIME_INCREMENT_MS; 
+    }
+
+    if (accumulatedTimeDelay >= delayTime) {
+            accumulatedTimeDelay = 0;
+            accumulatedNumOfIntervals = 0;
+        }
+    else {
+        accumulatedTimeDelay = accumulatedTimeDelay + TIME_INCREMENT_MS; 
+    }
+
+    /*float speedDelay = getLoModeSpeed();
+    if (accumulatedTimeDelay <= ) {
         servo.write(DUTY_MAX);
     }
 
@@ -71,22 +119,31 @@ void motorIntMode(int delayTime) {
     else {
         accumulatedSpeedDelay = accumulatedSpeedDelay + TIME_INCREMENT_MS;
         accumulatedTimeDelay = accumulatedTimeDelay + TIME_INCREMENT_MS;
-    }
+    }*/
 }
 
-void motorControl(int speedDelay) {
-    if (accumulatedSpeedDelay == 0) {
-        servo.write(DUTY_MAX);
+void motorControl(float dutyInt, float numOfIntervals) {
+    if (accumulatedIntervalTime == 0 && accumulatedNumOfIntervals == 0) {
+        duty = DUTY_MIN;
+        servo.write(duty); 
+    }
+    else if (accumulatedIntervalTime >= INTERVAL_TIME && accumulatedNumOfIntervals < numOfIntervals) {
+        duty = duty + dutyInt;
+        servo.write(duty); 
+    }
+    else if (accumulatedIntervalTime >= INTERVAL_TIME && accumulatedNumOfIntervals >= numOfIntervals && accumulatedNumOfIntervals < 2 * numOfIntervals) {
+        duty = duty - dutyInt;
+        servo.write(duty);
     }
 
-    if (accumulatedSpeedDelay >= speedDelay / 2 && accumulatedSpeedDelay < speedDelay) {
-        servo.write(DUTY_MIN); 
-    }
-
-    if (accumulatedSpeedDelay >= speedDelay) {
-        accumulatedSpeedDelay = 0;
+    if (accumulatedIntervalTime >= INTERVAL_TIME) {
+        accumulatedIntervalTime = 0;
+        accumulatedNumOfIntervals = accumulatedNumOfIntervals + 1;
+        if (accumulatedNumOfIntervals >= 2 * numOfIntervals) {
+            accumulatedNumOfIntervals = 0;
+        }
     }
     else {
-        accumulatedSpeedDelay = accumulatedSpeedDelay + TIME_INCREMENT_MS;
+        accumulatedIntervalTime = accumulatedIntervalTime + TIME_INCREMENT_MS; 
     }
 }
