@@ -74,11 +74,11 @@ void motorIntMode(int delayTime) {
         duty = DUTY_MIN;
         servo.write(duty); 
     }
-    else if (accumulatedIntervalTime >= INTERVAL_TIME && accumulatedNumOfIntervals < numOfIntervals) {
+    else if (accumulatedIntervalTime >= INTERVAL_TIME && accumulatedNumOfIntervals <= numOfIntervals) {
         duty = duty + dutyInt;
         servo.write(duty); 
     }
-    else if (accumulatedIntervalTime >= INTERVAL_TIME && accumulatedNumOfIntervals >= numOfIntervals && accumulatedNumOfIntervals < 2 * numOfIntervals) {
+    else if (accumulatedIntervalTime >= INTERVAL_TIME && accumulatedNumOfIntervals > numOfIntervals && accumulatedNumOfIntervals <= 2 * numOfIntervals) {
         duty = duty - dutyInt;
         servo.write(duty);
     }
