@@ -66,4 +66,4 @@ The vehicle is equipped with several devices:
 | If INT mode is selected, the wiper (servo) rotates based on the delay setting.                      | Pass        |                                                                 |
 | Display shows the status of both the wiper mode and the delay setting.                               | Pass        |                                                                 |
 | If wiper mode selector is turned off or engine is turned off, wipers freeze in their current position | Pass        | Challenge 2 - Implemented in place of completing the current cycle and returning to zero. |
-| When ignition is turned back on, the servo returns to the starting position of 0 degrees.             |             |                                                                 |
+| When ignition is turned back on, the servo returns to the starting position of 0 degrees.             |     Pass    |                                                                 |
