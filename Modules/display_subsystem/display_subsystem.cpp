@@ -1,9 +1,13 @@
+//=====[Libraries]=============================================================
+
 #include "mbed.h"
 #include "arm_book_lib.h"
 
 #include "display_subsystem.h"
 #include "windshield_wiper_subsystem.h"
 #include "ignition_subsystem.h"
+
+//=====[Declaration of private defines]========================================
 
 #define TIME_INCREMENT_MS 10
 
@@ -57,6 +61,7 @@
 #define DISPLAY_PIN_D6 13 
 #define DISPLAY_PIN_D7 14 
 
+//=====[Declaration and initialization of public global objects]===============
 
 DigitalOut displayD0( D0 );
 DigitalOut displayD1( D1 );
@@ -69,7 +74,11 @@ DigitalOut displayD7( D7 );
 DigitalOut displayRs( D8 );
 DigitalOut displayEn( D9 );
 
+//=====[Declaration and initialization of public global variables]=============
+
 int accumulatedDisplayTime = 0;
+
+//=====[Declarations (prototypes) of private functions]========================
 
 void displayCharPositionWrite( uint8_t charPositionX, uint8_t charPositionY );
 void displayPinWrite( uint8_t pinName, int value );
@@ -77,6 +86,10 @@ void displayDataBusWrite( uint8_t dataByte );
 void displayCodeWrite( bool type, uint8_t dataBus );
 void displayStringWrite( const char * str );
 
+//=====[Implementations of public functions]===================================
+
+/*update the display so that it shows the current windshield wiper mode and 
+delay selected only when the car is on. */
 void displayUpdate() {
     engineStatus_t engineStatus = engineStatusUpdate();
     if (engineStatus == RUNNING) {
@@ -141,6 +154,7 @@ void displayUpdate() {
     }
 }
 
+//initialize the display
 void displayInit() {
     delay( 50 );
     
@@ -190,6 +204,8 @@ void displayInit() {
                       DISPLAY_IR_DISPLAY_CONTROL_BLINK_OFF );    
     delay( 1 );  
 }
+
+//=====[Implementations of private functions]==================================
 
 void displayCharPositionWrite( uint8_t charPositionX, uint8_t charPositionY ) {    
     switch( charPositionY ) {
